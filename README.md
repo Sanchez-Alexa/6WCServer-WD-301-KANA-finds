@@ -1,6 +1,6 @@
 INTRODUCTION
 
-System Background
+System Background:
 KANA finds is a web application that serves as a restaurant guide for diners across the five boroughs of New York City: the Bronx, Brooklyn, Manhattan, Queens and Staten Island. It lists thousands of restaurants, each with its name, borough, cuisine, and a grade (A, B or C) with its score, so that diners know what to expect before they walk in. Users can search for a restaurant by name, filter the list, and add restaurants to it. They can also edit or delete the restaurants they added, and send the team a message through a contact form.
 
 With so many restaurants spread across the city, finding the right place can be difficult. Browsing through general listings often leads to:
@@ -11,7 +11,7 @@ With so many restaurants spread across the city, finding the right place can be 
 
 To address these issues, KANA finds is proposed as a web application that makes restaurants easy to search, filter and compare, and lets users keep their own entries up to date. 
 
-Objective
+Objective:
 The objective of KANA finds is to help diners discover and compare restaurants across the five boroughs of New York City. 
 1. To search for restaurants by name. 
 2. To filter restaurants by:
