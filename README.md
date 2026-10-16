@@ -33,8 +33,8 @@ Requirements
 Install
 
 ```bash
-git clone <your-repository-url>
-cd restaurant-explorer
+git clone https://github.com/Sanchez-Alexa/WCServer_Final_Project.git
+cd WCServer_Final_Project
 npm install
 ```
 
