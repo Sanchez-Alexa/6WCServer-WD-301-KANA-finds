@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Restaurants - KANA finds</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Hides the {{ }} placeholders until Vue is ready -->
+    <style>[v-cloak] { display: none; }</style>
+</head>
+
+<body class="dark-page">
+
+    <header class="site-header">
+        <a class="logo" href="index.html">KANA finds.</a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="restaurants.html" class="active">List of Restaurants</a>
+            <a href="contact.html">Contact Us</a>
+        </nav>
+    </header>
+
+    <div id="app" v-cloak>
+
+        <main class="list-page">
+
+            <form class="search-bar" role="search" @submit.prevent="loadRestaurants(1)">
+                <label for="searchName" class="visually-hidden">Search by restaurant name</label>
+                <input type="search" id="searchName" v-model="filters.name" placeholder="Search by restaurant name" autocomplete="off">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <div class="filters">
+                <div class="field">
+                    <label for="borough">Borough</label>
+                    <select id="borough" v-model="filters.borough">
+                        <option value="">All Boroughs</option>
+                        <option value="Bronx">Bronx</option>
+                        <option value="Brooklyn">Brooklyn</option>
+                        <option value="Manhattan">Manhattan</option>
+                        <option value="Queens">Queens</option>
+                        <option value="Staten Island">Staten Island</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="cuisine">Cuisine</label>
+                    <select id="cuisine" v-model="filters.cuisine">
+                        <option value="">All Cuisines</option>
+                        <option value="American">American</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Pizza">Pizza</option>
+                        <option value="Hamburgers">Hamburgers</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="grade">Grade</label>
+                    <select id="grade" v-model="filters.grade">
+                        <option value="">All Grades</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="maxScore">Maximum score</label>
+                    <input type="number" id="maxScore" min="0" v-model="filters.maxScore" placeholder="Example: 10">
+                </div>
+
+                <button type="button" class="btn" @click="loadRestaurants(1)">Apply filter</button>
+            </div>
+
+            <div class="list-toolbar">
+                <p class="result-count" role="status">{{ countText }}</p>
+                <button type="button" class="btn btn-primary" @click="openAddForm">+ Add restaurant</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Borough</th>
+                            <th>Cuisine</th>
+                            <th>Grades</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="message">
+                            <td colspan="5" class="empty">{{ message }}</td>
+                        </tr>
+
+                        <tr v-for="restaurant in restaurants" :key="restaurant.restaurant_id">
+                            <td class="name-cell">{{ restaurant.name }}</td>
+                            <td>{{ restaurant.borough }}</td>
+                            <td>{{ restaurant.cuisine }}</td>
+                            <td>
+                                <span class="grade" :class="gradeClass(restaurant.grade)">{{ restaurant.grade }}</span>
+                                <span class="score">Score {{ restaurant.score }}</span>
+                            </td>
+                            <td class="actions-cell">
+                                <template v-if="restaurant.canModify">
+                                    <button type="button" class="btn btn-small" @click="openEditForm(restaurant)">Edit</button>
+                                    <button type="button" class="btn btn-small btn-danger" @click="deleteRestaurant(restaurant)">Delete</button>
+                                </template>
+                                <span v-else class="owner-note" title="You can only edit restaurants you added.">View only</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button type="button" class="btn btn-small" :disabled="page <= 1" @click="loadRestaurants(page - 1)">Previous</button>
+                <span>Page {{ page }} of {{ pages }}</span>
+                <button type="button" class="btn btn-small" :disabled="page >= pages" @click="loadRestaurants(page + 1)">Next</button>
+            </div>
+
+        </main>
+
+        <dialog ref="dialog">
+            <form @submit.prevent="saveRestaurant">
+                <h2>{{ editingId === null ? "Add restaurant" : "Edit restaurant" }}</h2>
+
+                <div class="field">
+                    <label for="formName">Name</label>
+                    <input type="text" id="formName" v-model="form.name" required>
+                </div>
+
+                <div class="field">
+                    <label for="formBorough">Borough</label>
+                    <select id="formBorough" v-model="form.borough" required>
+                        <option value="">Choose a borough</option>
+                        <option value="Bronx">Bronx</option>
+                        <option value="Brooklyn">Brooklyn</option>
+                        <option value="Manhattan">Manhattan</option>
+                        <option value="Queens">Queens</option>
+                        <option value="Staten Island">Staten Island</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="formCuisine">Cuisine</label>
+                    <input type="text" id="formCuisine" list="cuisineOptions" v-model="form.cuisine" required>
+                    <datalist id="cuisineOptions">
+                        <option value="American"></option>
+                        <option value="Chinese"></option>
+                        <option value="Bakery"></option>
+                        <option value="Pizza"></option>
+                        <option value="Hamburgers"></option>
+                    </datalist>
+                </div>
+
+                <div class="field-row" v-if="editingId === null">
+                    <div class="field">
+                        <label for="formGrade">Grade</label>
+                        <select id="formGrade" v-model="form.grade">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="formScore">Score</label>
+                        <input type="number" id="formScore" min="0" v-model="form.score">
+                    </div>
+                </div>
+
+                <p class="form-error" role="alert">{{ formError }}</p>
+
+                <div class="dialog-actions">
+                    <button type="button" class="btn" @click="closeForm">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save restaurant</button>
+                </div>
+            </form>
+        </dialog>
+
+        <div class="toast" :class="{ show: toastVisible }" role="status">{{ toastText }}</div>
+
+    </div>
+
+    <footer class="site-footer">
+        <strong class="footer-logo">KANA finds</strong>
+        <p class="footer-copy">Copyright &copy; 2026. All Right Reserved</p>
+    </footer>
+
+    <script src="vue.global.prod.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

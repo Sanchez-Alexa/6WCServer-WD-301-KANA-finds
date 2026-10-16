@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - KANA finds</title>
+    <link rel="stylesheet" href="style.css">
+    <style>[v-cloak] { display: none; }</style>
+</head>
+
+<body class="dark-page">
+
+    <header class="site-header">
+        <a class="logo" href="index.html">KANA finds.</a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="restaurants.html">List of Restaurants</a>
+            <a href="contact.html" class="active">Contact Us</a>
+        </nav>
+    </header>
+
+    <div id="app" v-cloak>
+        <main class="contact">
+
+            <h1>Contact Us</h1>
+            <p class="contact-intro">Have a question, found a mistake, or want to suggest a restaurant? Send us a message and we will read it.</p>
+
+            <p v-if="sent" class="contact-success" role="status">
+                Thank you, {{ sentName }}. Your message was sent.
+            </p>
+
+            <form class="contact-form" @submit.prevent="sendMessage" novalidate>
+
+                <div class="field">
+                    <label for="contactName">Name</label>
+                    <input type="text" id="contactName" v-model="form.name" maxlength="100" autocomplete="name">
+                </div>
+
+                <div class="field">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" v-model="form.email" maxlength="254" autocomplete="email">
+                </div>
+
+                <div class="field">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" v-model="form.message" rows="6" maxlength="2000"></textarea>
+                    <span class="char-count">{{ form.message.length }} / 2000</span>
+                </div>
+
+                <p class="form-error" role="alert">{{ error }}</p>
+
+                <button type="submit" class="btn btn-primary" :disabled="sending">
+                    {{ sending ? "Sending..." : "Send message" }}
+                </button>
+            </form>
+
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <strong class="footer-logo">KANA finds</strong>
+        <p class="footer-copy">Copyright &copy; 2026. All Right Reserved</p>
+    </footer>
+
+    <script src="vue.global.prod.js"></script>
+    <script src="contact.js"></script>
+</body>
+</html>
